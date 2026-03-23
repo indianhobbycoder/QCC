@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Governance Dashboard</h1>
+        <p class="text-muted mb-0">Operational visibility for audits, calibration, and feedback.</p>
+    </div>
+    <a href="{{ url_for('export_agents_csv') }}" class="btn btn-outline-primary">Export Agent Scores CSV</a>
+</div>
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><small>Avg Quality Score</small><h2>{{ avg_quality_score }}%</h2></div></div></div>
+    <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><small>Total Audits</small><h2>{{ total_audits }}</h2></div></div></div>
+    <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><small>QA Utilization %</small><h2>{{ avg_utilization }}%</h2></div></div></div>
+    <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><small>Calibration Variance</small><h2>{{ avg_variance }}%</h2></div></div></div>
+</div>
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="h5">Agent Score Trends</h2>
+                <canvas id="agentTrendChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="h5">QA Utilization</h2>
+                <ul class="list-group list-group-flush">
+                    {% for item in utilization %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ item.auditor }}</span>
+                        <span class="badge {% if item.threshold_breached %}bg-danger{% else %}bg-primary{% endif %}">{{ item.utilization_pct }}%</span>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-muted">No utilization data.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="h5 text-danger">Low Performing Agents (&lt;75%)</h2>
+                <ul class="list-group list-group-flush">
+                    {% for agent in low_performers %}
+                    <li class="list-group-item d-flex justify-content-between"><span>{{ agent.name }}</span><span class="text-muted">{{ agent.process }}</span></li>
+                    {% else %}
+                    <li class="list-group-item text-muted">No low performers flagged.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="h5 text-warning">Calibration Alerts</h2>
+                <ul class="list-group list-group-flush">
+                    {% for alert in calibration_alerts %}
+                    <li class="list-group-item">{{ alert.auditor.name }} variance: <strong>{{ alert.variance }}%</strong></li>
+                    {% else %}
+                    <li class="list-group-item text-muted">No deviations beyond 10%.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="h5 text-info">Repeat Feedback Alerts</h2>
+                <ul class="list-group list-group-flush">
+                    {% for alert in feedback_alerts %}
+                    <li class="list-group-item">{{ alert.agent }} - {{ alert.action }} ({{ alert.repeats }} repeats)</li>
+                    {% else %}
+                    <li class="list-group-item text-muted">No repeat feedback alerts.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dashboard-data"
+     data-agent-trends='{{ agent_trends|tojson }}'
+     data-qa-report='{{ qa_report|tojson }}'
+     data-calibration-report='{{ calibration_report|tojson }}'></div>
+{% if current_user.role == 'Admin' %}
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-body">
+        <h2 class="h5">Manage QA Bandwidth</h2>
+        <form class="row g-3" method="post" action="{{ url_for('bandwidth') }}">
+            {{ bandwidth_form.hidden_tag() }}
+            <div class="col-md-4">{{ bandwidth_form.auditor_id(class_='form-select') }}</div>
+            <div class="col-md-3">{{ bandwidth_form.max_capacity(class_='form-control', placeholder='Max capacity') }}</div>
+            <div class="col-md-3">{{ bandwidth_form.allocated(class_='form-control', placeholder='Allocated') }}</div>
+            <div class="col-md-2 d-grid">{{ bandwidth_form.submit(class_='btn btn-primary') }}</div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

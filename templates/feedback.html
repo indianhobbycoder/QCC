@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h1 class="h4">Log Feedback</h1>
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-2">{{ form.agent_id.label(class_='form-label') }}{{ form.agent_id(class_='form-select') }}</div>
+                    <div class="mb-2">{{ form.audit_id.label(class_='form-label') }}{{ form.audit_id(class_='form-select') }}</div>
+                    <div class="mb-2">{{ form.feedback_text.label(class_='form-label') }}{{ form.feedback_text(class_='form-control', rows=4) }}</div>
+                    <div class="mb-2">{{ form.severity.label(class_='form-label') }}{{ form.severity(class_='form-select') }}</div>
+                    <div class="mb-2">{{ form.feedback_date.label(class_='form-label') }}{{ form.feedback_date(class_='form-control') }}</div>
+                    <div class="d-grid mt-3">{{ form.submit(class_='btn btn-primary') }}</div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h2 class="h5 text-info">Repeat Feedback Alerts</h2>
+                <ul class="list-group list-group-flush">
+                    {% for alert in alerts %}
+                    <li class="list-group-item">{{ alert.agent }} requires <strong>{{ alert.action }}</strong> after {{ alert.repeats }} repeated feedback logs.</li>
+                    {% else %}
+                    <li class="list-group-item text-muted">No repeat feedback alerts.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h2 class="h5">Recent Feedback</h2>
+                <table class="table table-hover"><thead><tr><th>Date</th><th>Agent</th><th>Severity</th><th>Feedback</th></tr></thead><tbody>
+                    {% for entry in entries %}
+                    <tr><td>{{ entry.date }}</td><td>{{ entry.agent.name }}</td><td>{{ entry.severity }}</td><td>{{ entry.feedback_text }}</td></tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted">No feedback entries.</td></tr>
+                    {% endfor %}
+                </tbody></table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

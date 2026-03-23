@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h1 class="h4">Calibration Session</h1>
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-2">{{ form.session_date.label(class_='form-label') }}{{ form.session_date(class_='form-control') }}</div>
+                    <div class="mb-2">{{ form.status.label(class_='form-label') }}{{ form.status(class_='form-select') }}</div>
+                    <div class="mb-2">{{ form.auditor_id.label(class_='form-label') }}{{ form.auditor_id(class_='form-select') }}</div>
+                    <div class="mb-2">{{ form.variance.label(class_='form-label') }}{{ form.variance(class_='form-control') }}</div>
+                    <div class="d-grid mt-3">{{ form.submit(class_='btn btn-primary') }}</div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h2 class="h5 text-warning">Deviation Alerts (&gt;10%)</h2>
+                <ul class="list-group list-group-flush">
+                    {% for alert in alerts %}
+                    <li class="list-group-item d-flex justify-content-between"><span>{{ alert.auditor.name }}</span><span>{{ alert.variance }}%</span></li>
+                    {% else %}
+                    <li class="list-group-item text-muted">No alerts.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h2 class="h5">Sessions</h2>
+                <table class="table table-striped"><thead><tr><th>ID</th><th>Date</th><th>Status</th><th>Entries</th></tr></thead><tbody>
+                    {% for session in sessions %}
+                    <tr><td>{{ session.id }}</td><td>{{ session.date }}</td><td>{{ session.status }}</td><td>{{ session.scores|length }}</td></tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted">No sessions recorded.</td></tr>
+                    {% endfor %}
+                </tbody></table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
