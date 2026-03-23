@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h1 class="h4">Create Audit</h1>
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-2">{{ form.agent_id.label(class_='form-label') }}{{ form.agent_id(class_='form-select') }}</div>
+                    <div class="mb-2">{{ form.auditor_id.label(class_='form-label') }}{{ form.auditor_id(class_='form-select') }}</div>
+                    <div class="mb-2">{{ form.audit_date.label(class_='form-label') }}{{ form.audit_date(class_='form-control') }}</div>
+                    <div class="mb-2">{{ form.greeting.label(class_='form-label') }}{{ form.greeting(class_='form-control') }}</div>
+                    <div class="mb-2">{{ form.resolution.label(class_='form-label') }}{{ form.resolution(class_='form-control') }}</div>
+                    <div class="mb-2">{{ form.compliance.label(class_='form-label') }}{{ form.compliance(class_='form-control') }}</div>
+                    <div class="mb-2">{{ form.cx.label(class_='form-label') }}{{ form.cx(class_='form-control') }}</div>
+                    <div class="d-grid mt-3">{{ form.submit(class_='btn btn-primary') }}</div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h1 class="h4">Audit History</h1>
+                <form class="row g-2 mb-3" method="get">
+                    <div class="col-md-4"><input type="text" name="process" class="form-control" value="{{ request.args.get('process','') }}" placeholder="Filter by process"></div>
+                    <div class="col-md-3"><input type="date" name="start_date" class="form-control" value="{{ request.args.get('start_date','') }}"></div>
+                    <div class="col-md-3"><input type="date" name="end_date" class="form-control" value="{{ request.args.get('end_date','') }}"></div>
+                    <div class="col-md-2 d-grid"><button class="btn btn-outline-primary">Filter</button></div>
+                </form>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead><tr><th>ID</th><th>Date</th><th>Agent</th><th>QA</th><th>Score</th></tr></thead>
+                        <tbody>
+                            {% for audit in paginated_audits.items %}
+                            <tr class="{% if audit.score < 75 %}table-danger{% endif %}">
+                                <td>{{ audit.id }}</td>
+                                <td>{{ audit.date }}</td>
+                                <td>{{ audit.agent.name }}</td>
+                                <td>{{ audit.auditor.name }}</td>
+                                <td>{{ audit.score }}%</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-center text-muted">No audits found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% include '_pagination.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
